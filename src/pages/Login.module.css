@@ -1,0 +1,30 @@
+.loginContainer{
+  max-width: 25rem;
+  max-height: 100vw;
+  border: 1px solid #ccc;
+  margin-top: 20vh;
+  border-radius: 5%;
+}
+
+.title{
+  color: darkolivegreen;
+  padding: 3rem 0;
+}
+
+.regularField{
+  border: 1px solid #666;
+}
+
+.validationError{
+  border: 1px dashed red;
+}
+
+.mainBtnColor{
+  background-color: darkolivegreen;
+  border-color: rgb(63, 78, 36);
+}
+
+.mainBtnColor:hover, .mainBtnColor:visited, .mainBtnColor:active, .mainBtnColor:focus{
+  background-color: rgb(63, 78, 36);
+  border-color: rgb(63, 78, 36);
+}
