@@ -17,13 +17,17 @@ import { useDispatch } from 'react-redux';
 import styles from './Login.module.css';
 import Actions from '../actions';
 
-const MIN_PASSWORD = 6;
-
 function Login() {
+  const MIN_PASSWORD = 6;
   const dispatch = useDispatch();
+
+  // utilizando o hook useRef para conseguir uma referencia do Elemento Dom
+  // https://pt-br.reactjs.org/docs/refs-and-the-dom.html
   const email = useRef(null);
   const password = useRef(null);
 
+  // utilizando o useState para gerenciar o estado do componente utilizando hooks
+  // https://pt-br.reactjs.org/docs/hooks-state.html
   const [emailValidationError, setEmailValidationError] = useState(true);
   const [passwordValidationError, setPasswordValidationError] = useState(true);
 
@@ -47,14 +51,14 @@ function Login() {
     return !passwordString || passwordString.length < MIN_PASSWORD;
   }
 
-  function validateEmail() {
+  function validateEmailHandler() {
     const emailError = hasEmailError(email.current.value);
     setEmailValidationError(emailError);
     if (!emailError) return null;
     return email.current;
   }
 
-  function validatePassword() {
+  function validatePasswordHandler() {
     const passwordError = hasPasswordError(password.current.value);
     setPasswordValidationError(passwordError);
     if (!passwordError) return null;
@@ -64,10 +68,10 @@ function Login() {
   function loginHandler(event) {
     event.preventDefault();
     const hasErrors = [];
-    const emailError = validateEmail();
+    const emailError = validateEmailHandler();
     if (emailError) hasErrors.push(emailError);
 
-    const passwordError = validatePassword();
+    const passwordError = validatePasswordHandler();
     if (passwordError) hasErrors.push(password.current);
 
     if (hasErrors.length > 0) {
@@ -111,7 +115,7 @@ function Login() {
             placeholder="alguem@email.com"
             data-testid="email-input"
             ref={ email }
-            onKeyUp={ validateEmail }
+            onKeyUp={ validateEmailHandler }
           />
         </div>
 
@@ -122,7 +126,7 @@ function Login() {
             placeholder="password"
             data-testid="password-input"
             ref={ password }
-            onKeyUp={ validatePassword }
+            onKeyUp={ validatePasswordHandler }
           />
         </div>
         <div className="mb-3">
