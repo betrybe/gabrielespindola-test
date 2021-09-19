@@ -12,23 +12,82 @@
  * Hooks provêem acesso a válvulas de escape imperativas e não requerem você a aprender técnicas complexas de programação funcional ou reativa.
  */
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import styles from './Login.module.css';
+import Actions from '../actions';
+
+const MIN_PASSWORD = 6;
 
 function Login() {
+  const dispatch = useDispatch();
   const email = useRef(null);
   const password = useRef(null);
 
-  const classNames = [formControl, 'w-100', styles.regularField];
-  const startClassNames = classNames.join(' ');
-  const formElementClassNames = ['formControl', 'btn', 'btn-primary', 'regularField'];
+  const [emailValidationError, setEmailValidationError] = useState(true);
+  const [passwordValidationError, setPasswordValidationError] = useState(true);
 
-  function loginHandler(e) {
-    e.preventDefault();
+  const classNames = ['form-control', 'w-100', styles.regularField];
+  const emailClassNames = [...classNames];
+  const passwordClassNames = [...classNames];
 
-    if (!email.current.value) {
-      email.current.className = `${email.current.className} ${styles.validationError}`;
-    } else email.current.className = startClassNames;
+  if (emailValidationError) emailClassNames.push(styles.validationError);
+  if (passwordValidationError) passwordClassNames.push(styles.validationError);
+
+  function validateEmailFormat(aux) {
+    const regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+    return regex.test(aux);
+  }
+
+  function hasEmailError(emailString) {
+    return !emailString || !validateEmailFormat(emailString);
+  }
+
+  function hasPasswordError(passwordString) {
+    return !passwordString || passwordString.length < MIN_PASSWORD;
+  }
+
+  function validateEmail() {
+    const emailError = hasEmailError(email.current.value);
+    setEmailValidationError(emailError);
+    if (!emailError) return null;
+    return email.current;
+  }
+
+  function validatePassword() {
+    const passwordError = hasPasswordError(password.current.value);
+    setPasswordValidationError(passwordError);
+    if (!passwordError) return null;
+    return password.current;
+  }
+
+  function loginHandler(event) {
+    event.preventDefault();
+    const hasErrors = [];
+    const emailError = validateEmail();
+    if (emailError) hasErrors.push(emailError);
+
+    const passwordError = validatePassword();
+    if (passwordError) hasErrors.push(password.current);
+
+    if (hasErrors.length > 0) {
+      hasErrors[0].focus();
+      return;
+    }
+
+    setEmailValidationError(false);
+    setPasswordValidationError(false);
+
+    // utilizando um action creator para algo simples... como não existe transformação poderia ter dado dispatch diretamente a action
+    // com um action creator temos a possibilidade de tratar side effects
+    // https://medium.com/magnetis-backstage/redux-side-effects-and-me-89c104a4b149
+    // isso é permitido por causa do redux-thunk
+    // https://github.com/reduxjs/redux-thunk
+    dispatch(
+      Actions.user.login(
+        { email: email.current.value, password: password.current.value },
+      ),
+    );
   }
 
   return (
@@ -39,53 +98,48 @@ function Login() {
         'flex-column',
         'justify-content-center',
         'align-items-center',
-        'p-2',
         styles.loginContainer].join(' ') }
     >
-      <h1 className={ styles.title }>Trybe Wallet</h1>
+      <h1 className={ styles.title }>
+        Trybe Wallet
+      </h1>
       <form className="form" onSubmit={ loginHandler }>
         <div className="mb-3">
           <input
             type="email"
-            className={ startClassNames }
-            id="email"
-            aria-describedby="emailHelp"
-            placeholder="seuemail@email.com"
+            className={ emailClassNames.join(' ') }
+            placeholder="alguem@email.com"
+            data-testid="email-input"
             ref={ email }
+            onKeyUp={ validateEmail }
           />
         </div>
 
         <div className="mb-3">
           <input
-            type="text"
-            className={ startClassNames }
-            id="password"
+            type="password"
+            className={ passwordClassNames.join(' ') }
             placeholder="password"
+            data-testid="password-input"
             ref={ password }
+            onKeyUp={ validatePassword }
           />
         </div>
         <div className="mb-3">
-
-          <input
-            type="button"
-            className={
-              [
-                ...formElementClassNames,
-                styles.mainBtnColor].join(' ')
-            }
-            value="Log In"
-            onClick={ loginHandler }
-          />
-
-          <input
+          <button
             type="submit"
             className={
               [
-                ...formElementClassNames,
+                ...classNames,
+                'btn',
+                'btn-primary',
                 styles.mainBtnColor].join(' ')
             }
-            value="Log In"
-          />
+            onClick={ loginHandler }
+            disabled={ emailValidationError || passwordValidationError }
+          >
+            Entrar
+          </button>
         </div>
       </form>
     </div>
