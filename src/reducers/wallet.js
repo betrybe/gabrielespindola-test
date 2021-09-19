@@ -21,20 +21,20 @@ Em função da forma como os testes automatizados foram construídos, nessa apli
  */
 const initialState = { currencies: [], expenses: [] };
 export default (state = initialState, action) => {
-    switch (action.type) {
-        case WALLET_ADD_CURRENCY:
-            return state;
+  switch (action.type) {
+  case WALLET_ADD_CURRENCY:
+    return state;
 
-        case WALLET_REMOVE_CURRENCY:
-            return state;
+  case WALLET_REMOVE_CURRENCY:
+    return state;
 
-        case WALLET_ADD_EXPENSE:
-            return state;
+  case WALLET_ADD_EXPENSE:
+    return state;
 
-        case WALLET_REMOVE_EXPENSE:
-            return state;
+  case WALLET_REMOVE_EXPENSE:
+    return state;
 
-        default:
-            return state;
-    }
-}
+  default:
+    return state;
+  }
+};

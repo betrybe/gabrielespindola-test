@@ -18,9 +18,9 @@ const store = createStore(
 export default store;
  */
 
-import { applyMiddleware, createStore } from "redux";
-import { composeWithDevTools } from "redux-devtools-extension";
-import thunk from "redux-thunk";
+import { applyMiddleware, createStore } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import thunk from 'redux-thunk';
 import combinedReducer from '../reducers';
 
 export default createStore(combinedReducer, composeWithDevTools(applyMiddleware(thunk)));

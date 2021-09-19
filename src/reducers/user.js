@@ -20,14 +20,14 @@ Em função da forma como os testes automatizados foram construídos, nessa apli
 
 const initialState = { email: '', isAuthenticated: false };
 export default (state = initialState, action) => {
-    switch (action.type) {
-        case USER_LOGIN:
-            return state;
+  switch (action.type) {
+  case USER_LOGIN:
+    return state;
 
-        case USER_LOGOUT:
-            return state;
+  case USER_LOGOUT:
+    return state;
 
-        default:
-            return state;
-    }
-}
+  default:
+    return state;
+  }
+};
