@@ -1,4 +1,3 @@
-import React, { useRef } from 'react';
 /**
  * tendo em vista que estamos usando a versão "16.13.1" do react, migrei os componentes para utilização funcional utilizando Hooks
  * Documentação dos hooks: https://pt-br.reactjs.org/docs/hooks-intro.html
@@ -13,36 +12,24 @@ import React, { useRef } from 'react';
  * Hooks provêem acesso a válvulas de escape imperativas e não requerem você a aprender técnicas complexas de programação funcional ou reativa.
  */
 
+import React, { useRef } from 'react';
 import styles from './Login.module.css';
 
 function Login() {
   const email = useRef(null);
   const password = useRef(null);
 
-  const loginHandler = (e) => {
+  const classNames = [formControl, 'w-100', styles.regularField];
+  const startClassNames = classNames.join(' ');
+  const formElementClassNames = ['formControl', 'btn', 'btn-primary', 'regularField'];
+
+  function loginHandler(e) {
     e.preventDefault();
-    console.log('clicou no login');
-  };
 
-  const emailValidationError = true;
-  const passwordValidationError = false;
-
-  const getClassNameValidationError = (field) => {
-    const classNames = ['form-control', 'w-100', styles.regularField];
-    let additionalClass = null;
-    switch (field) {
-    case 'password':
-      additionalClass = passwordValidationError ? styles.validationError : null;
-      break;
-
-    default:
-      additionalClass = emailValidationError ? styles.validationError : null;
-    }
-
-    if (additionalClass) classNames.push(additionalClass);
-
-    return classNames.join(' ');
-  };
+    if (!email.current.value) {
+      email.current.className = `${email.current.className} ${styles.validationError}`;
+    } else email.current.className = startClassNames;
+  }
 
   return (
     <div
@@ -60,7 +47,7 @@ function Login() {
         <div className="mb-3">
           <input
             type="email"
-            className={ getClassNameValidationError('email') }
+            className={ startClassNames }
             id="email"
             aria-describedby="emailHelp"
             placeholder="seuemail@email.com"
@@ -71,17 +58,31 @@ function Login() {
         <div className="mb-3">
           <input
             type="text"
-            className={ getClassNameValidationError('password') }
+            className={ startClassNames }
             id="password"
             placeholder="password"
             ref={ password }
           />
         </div>
         <div className="mb-3">
+
+          <input
+            type="button"
+            className={
+              [
+                ...formElementClassNames,
+                styles.mainBtnColor].join(' ')
+            }
+            value="Log In"
+            onClick={ loginHandler }
+          />
+
           <input
             type="submit"
             className={
-              ['form-control', 'btn', 'btn-primary', 'regularField', styles.mainBtnColor].join(' ')
+              [
+                ...formElementClassNames,
+                styles.mainBtnColor].join(' ')
             }
             value="Log In"
           />
