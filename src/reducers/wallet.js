@@ -7,6 +7,7 @@ export const WALLET_SAVE_EXPENSE = 'WALLET_SAVE_EXPENSE';
 export const WALLET_REMOVE_EXPENSE = 'WALLET_REMOVE_EXPENSE';
 export const WALLET_SELECT_CURRENT_EXPENSE = 'WALLET_SELECT_CURRENT_EXPENSE';
 export const WALLET_CHANGE_CURRENCIES = 'WALLET_CHANGE_CURRENCIES';
+export const WALLET_INIT_APP_EXPENSES = 'WALLET_INIT_APP_EXPENSES';
 export const WALLET_ERROR = 'WALLET_ERROR';
 
 /**
@@ -24,7 +25,7 @@ Em função da forma como os testes automatizados foram construídos, nessa apli
  */
 const defaultExpense = {
   name: '',
-  value: 0.0,
+  value: 0,
   description: '',
   currency: 'USD',
   method: 'Dinheiro',
@@ -33,9 +34,14 @@ const defaultExpense = {
   selectedRates: {},
   convertedValue: 0.0,
 };
+
 const initialState = {
-  currency: 'BRL',
-  currencies: [],
+  currencyToExchange: 'BRL',
+  currencies: [
+    'USD', 'CAD', 'EUR', 'GBP', 'ARS', 'BTC', 'LTC',
+    'JPY', 'CHF', 'AUD', 'CNY', 'ILS', 'ETH', 'XRP',
+  ],
+  currencyConverters: [],
   expenses: [],
   totalExpenses: 0.0,
   isFetchingCurrencies: false,
@@ -44,38 +50,49 @@ const initialState = {
   errorMessage: '',
 };
 
+function getConvertedValue(expenseItem) {
+  const selectedRates = expenseItem.exchangeRates[expenseItem.currency];
+  if (!selectedRates) return '0.00';
+  return (expenseItem.value * parseFloat(selectedRates.ask));
+}
+
 function getTotalExpenses(newExpenses) {
   if (newExpenses.length === 0) return 0.00;
-  if (newExpenses.length === 1) return newExpenses[0].convertedValue;
+  if (newExpenses.length === 1) return getConvertedValue(newExpenses[0]).toFixed(2);
 
   let aggr = 0.0;
   newExpenses.forEach((expense) => {
-    aggr += parseFloat(expense.convertedValue);
+    aggr += getConvertedValue(expense);
   });
 
   return parseFloat(aggr).toFixed(2);
 }
 
 function saveExpense(state, action) {
-  const expense = { ...action.payload, new: false };
+  const expense = { ...action.payload };
   let newExpenses = [...state.expenses];
   let totalExpenses = 0;
 
-  if (!('id' in action.payload) || !expense.id) {
-    expense.id = state.expenses.length + 1;
+  const idSelected = 'id' in expense
+    && typeof expense.id === 'number' ? expense.id : null;
+
+  if (idSelected === null) {
+    expense.id = state.expenses.length;
     newExpenses.push(expense);
     totalExpenses = getTotalExpenses(newExpenses);
     return {
       ...state,
       expenses: newExpenses,
-      expense: { ...defaultExpense, id: null, new: true },
+      expense: { ...defaultExpense, id: null },
       totalExpenses,
     };
   }
+
   newExpenses = state.expenses.map((item) => {
-    if (item.id !== expense.id) return item;
+    if (item.id !== idSelected) return item;
     return expense;
   });
+
   totalExpenses = getTotalExpenses(newExpenses);
   return {
     ...state,
@@ -101,7 +118,7 @@ export default (state = initialState, action) => {
 
   switch (action.type) {
   case WALLET_CHANGE_CURRENCIES:
-    return { ...state, currencies: action.payload, isFetchingCurrencies: false };
+    return { ...state, currencyConverters: action.payload, isFetchingCurrencies: false };
 
   case WALLET_IS_FETCHING_CURRENCIES:
     return { ...state, isFetchingCurrencies: action.payload };

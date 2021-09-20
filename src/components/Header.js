@@ -5,7 +5,7 @@ import styles from './Header.module.css';
 
 function Header() {
   const user = useSelector((state) => state.user);
-  const currency = useSelector((state) => state.wallet.currency);
+  const currencyToExchange = useSelector((state) => state.wallet.currencyToExchange);
   const totalExpenses = useSelector((state) => state.wallet.totalExpenses);
 
   return (
@@ -20,8 +20,10 @@ function Header() {
         <b>Despesa Total:</b>
         {' '}
         R$
-        <span data-testid="total-field" className="me-1">{totalExpenses || '0.00'}</span>
-        <span data-testid="header-currency-field">{currency}</span>
+        <span data-testid="total-field" className="me-1">
+          {totalExpenses || '0.00'}
+        </span>
+        <span data-testid="header-currency-field">{currencyToExchange}</span>
       </span>
     </header>
   );

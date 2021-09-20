@@ -28,23 +28,33 @@ const defaultProps = {
   tag: 'Alimentação',
 };
 
-function getRatesAndConvertedValue(elementValue, elementCurrency, currencies) {
+function getRatesAndConvertedValue(
+  expenseSelected, elementValue, elementCurrency, currencies,
+) {
   const expanseValue = elementValue.value || 0;
-  const currencyValue = elementCurrency.value || null;
-  const exchangeRates = currencyValue
-    ? currencies[currencyValue] : { ask: 0.0 };
-  const convertedValue = (expanseValue * exchangeRates.ask).toFixed(2);
+  const currencyValue = elementCurrency.value || 'USD';
 
+  let exchangeRates = null;
+  if (expenseSelected && 'exchangeRates' in expenseSelected) {
+    exchangeRates = expenseSelected.exchangeRates[currencyValue];
+  }
+
+  if (!exchangeRates) {
+    exchangeRates = currencyValue
+      ? currencies[currencyValue] : { ask: 0.0 };
+  }
+
+  const convertedValue = (expanseValue * exchangeRates.ask).toFixed(2);
   return { selectedRates: exchangeRates, convertedValue };
 }
 
 function ExpenseForm({ id, value, currency, description, tag, method, isSavedHandler }) {
   const dispatch = useDispatch();
   const [firstTime, isFirstTime] = useState(true);
+  const currencyConverters = useSelector((state) => state.wallet.currencyConverters);
   const currencies = useSelector((state) => state.wallet.currencies);
-  const isFetchingCurrencies = useSelector((state) => state.wallet.isFetchingCurrencies);
   const expenses = useSelector((state) => state.wallet.expenses);
-  const [formCurrencies, setFormCurrencies] = useState();
+  const isFetchingCurrencies = useSelector((state) => state.wallet.isFetchingCurrencies);
 
   const elementId = useRef();
   const elementValue = useRef();
@@ -54,12 +64,12 @@ function ExpenseForm({ id, value, currency, description, tag, method, isSavedHan
   const elementMethod = useRef();
   const [expense, setExpense] = useState(defaultProps);
 
-  const currencyForOptions = formCurrencies
-    ? Object.values(formCurrencies).map((item) => (item.code)) : ['USD'];
-
   // resgatando os dados enviados via props para o state
   useEffect(() => {
-    setExpense({ id, value, currency, description, tag, method });
+    let initialId = null;
+    if (typeof id && id !== null) initialId = id.toString();
+
+    setExpense({ id: initialId, value, currency, description, tag, method });
     isFirstTime(!id);
   }, [id, value, currency, description, tag, method, isFirstTime]);
 
@@ -72,17 +82,6 @@ function ExpenseForm({ id, value, currency, description, tag, method, isSavedHan
     dispatch(Actions.wallet.getAllCurrencies);
   }, [dispatch, firstTime, isFirstTime]);
 
-  // tratando a busca pelos conversores
-  useEffect(() => {
-    if (!id) {
-      setFormCurrencies(currencies);
-      return;
-    }
-
-    const currentExpense = expenses.find((item) => item.id === id);
-    setFormCurrencies(currentExpense.exchangeRates);
-  }, [dispatch, isFirstTime, setFormCurrencies, firstTime, id, expenses, currencies]);
-
   function setValue(variable, objectValue) {
     const newExpense = { ...expense };
     newExpense[variable] = objectValue;
@@ -92,28 +91,35 @@ function ExpenseForm({ id, value, currency, description, tag, method, isSavedHan
   function saveExpenseHandler(event) {
     event.preventDefault();
 
-    const { selectedRates, convertedValue } = getRatesAndConvertedValue(
-      elementValue.current,
-      elementCurrency.current,
-      currencies,
-    );
+    const selectedId = elementId.current.value !== ''
+      ? parseInt(elementId.current.value, 10) : null;
 
+    const expenseSelected = expenses.find((item) => item.id === selectedId);
     dispatch(Actions.wallet.saveExpense({
-      id: elementId.current.value !== '' ? parseInt(elementId.current.value, 10) : null,
+      id: selectedId,
       value: elementValue.current.value !== ''
-        ? parseFloat(elementValue.current.value).toFixed(2) : 0.00,
+        ? elementValue.current.value : 0,
       description: elementDescription.current.value,
       method: elementMethod.current.value,
       currency: elementCurrency.current.value || null,
       tag: elementTag.current.value,
-      exchangeRates: currencies,
-      selectedRates,
-      convertedValue,
+      exchangeRates: currencyConverters || expenseSelected.exchangeRates,
     }));
 
     setExpense({ ...defaultProps });
     isFirstTime(true);
     isSavedHandler(true);
+  }
+
+  const basicBtnStyle = ['btn', 'btn-primary'];
+  function getInsertCtaStyles(exists) {
+    if (exists) return [...basicBtnStyle, 'd-none', 'd-xxl-none'].join(' ');
+    return basicBtnStyle.join(' ');
+  }
+
+  function getUdateCtaStyles(exists) {
+    if (!exists) return [...basicBtnStyle, 'd-none', 'd-xxl-none'].join(' ');
+    return basicBtnStyle.join(' ');
   }
 
   return (
@@ -180,7 +186,7 @@ function ExpenseForm({ id, value, currency, description, tag, method, isSavedHan
           onChange={ (evt) => setValue('currency', evt.target.value) }
           ref={ elementCurrency }
         >
-          {currencyForOptions
+          {currencies
             .map((curr) => (<option key={ curr }>{curr}</option>))}
         </select>
 
@@ -213,11 +219,13 @@ function ExpenseForm({ id, value, currency, description, tag, method, isSavedHan
           {tags.map((tagAux) => <option key={ tagAux }>{tagAux}</option>)}
         </select>
       </label>
-      { !expense.id
-        && <button type="submit" className="btn btn-primary">Adicionar despesa</button> }
+      <button type="submit" className={ getInsertCtaStyles(expense.id) }>
+        Adicionar despesa
+      </button>
 
-      { expense.id
-        && <button type="submit" className="btn btn-primary">Editar despesa</button> }
+      <button type="submit" className={ getUdateCtaStyles(expense.id) }>
+        Editar despesa
+      </button>
 
     </form>
   );

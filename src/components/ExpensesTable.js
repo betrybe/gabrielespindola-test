@@ -16,13 +16,14 @@ const defaultProps = {
 function ExpensesTable() {
   const dispatch = useDispatch();
   const expenses = useSelector((state) => state.wallet.expenses);
-  // const expenseFromState = useSelector((state) => state.wallet.expense);
-
+  const currencyToExchange = useSelector((state) => state.wallet.currencyToExchange);
   const [expense, setExpense] = useState(null);
+  const [localExpanses, setLocalExpanses] = useState([]);
 
   useEffect(() => {
     setExpense(defaultProps);
-  }, [setExpense]);
+    setLocalExpanses(expenses);
+  }, [setExpense, expenses, localExpanses, setLocalExpanses]);
 
   function editElementHandler(expenseSelected) {
     setExpense({ ...expenseSelected });
@@ -35,6 +36,24 @@ function ExpensesTable() {
   function isSavedHandler(isSaved = true) {
     if (!isSaved) return;
     setExpense(defaultProps);
+  }
+
+  function getRateName(expenseItem) {
+    const selectedRates = expenseItem.exchangeRates[expenseItem.currency];
+    if (!selectedRates) return '';
+    return selectedRates.name;
+  }
+
+  function getRate(expenseItem) {
+    const selectedRates = expenseItem.exchangeRates[expenseItem.currency];
+    if (!selectedRates) return '0.00';
+    return parseFloat(selectedRates.ask).toFixed(2);
+  }
+
+  function getNewValue(expenseItem) {
+    const selectedRates = expenseItem.exchangeRates[expenseItem.currency];
+    if (!selectedRates) return '0.00';
+    return (expenseItem.value * parseFloat(selectedRates.ask)).toFixed(2);
   }
 
   return (
@@ -58,6 +77,7 @@ function ExpensesTable() {
             <th scope="col">Valor</th>
             <th scope="col">Moeda</th>
             <th scope="col">Câmbio utilizado</th>
+            <th scope="col">Valor convertido</th>
             <th scope="col">Moeda de conversão</th>
             <th scope="col">Editar/Excluir</th>
           </tr>
@@ -68,10 +88,11 @@ function ExpensesTable() {
               <td>{expenseItem.description}</td>
               <td>{expenseItem.tag}</td>
               <td>{expenseItem.method}</td>
-              <td>{`${expenseItem.selectedRates.code} ${expenseItem.value}`}</td>
-              <td>{expenseItem.selectedRates.name}</td>
-              <td>{`BRT ${expenseItem.convertedValue}`}</td>
-              <td>{expenseItem.selectedRates.moedaTo}</td>
+              <td>{expenseItem.value}</td>
+              <td>{getRateName(expenseItem)}</td>
+              <td>{getRate(expenseItem)}</td>
+              <td>{getNewValue(expenseItem)}</td>
+              <td>Real</td>
               <td className="d-flex">
                 <button
                   data-testid="edit-btn"
