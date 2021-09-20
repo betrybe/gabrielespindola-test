@@ -13,13 +13,15 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Redirect } from 'react-router';
 import styles from './Login.module.css';
 import Actions from '../actions';
 
 function Login() {
   const MIN_PASSWORD = 6;
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => (state.user.isAuthenticated));
 
   // utilizando o hook useRef para conseguir uma referencia do Elemento Dom
   // https://pt-br.reactjs.org/docs/refs-and-the-dom.html
@@ -92,6 +94,14 @@ function Login() {
         { email: email.current.value, password: password.current.value },
       ),
     );
+  }
+
+  if (isAuthenticated) {
+    return (<Redirect
+      to={ {
+        pathname: '/carteira',
+      } }
+    />);
   }
 
   return (
