@@ -24,10 +24,10 @@ const initialState = { email: '', isAuthenticated: false };
 export default (state = initialState, action) => {
   switch (action.type) {
   case USER_LOGIN:
-    return { ...state, user: actions.payload, isAuthenticated: true };
+    return { ...state, email: action.payload.email, isAuthenticated: true };
 
   case USER_LOGOUT:
-    return { ...state, user: { email: '', isAuthenticated: false } };
+    return { ...state, email: '', isAuthenticated: false };
 
   default:
     return state;
