@@ -28,11 +28,11 @@ const defaultExpense = {
   description: '',
   currency: 'USD',
   method: 'Dinheiro',
-  tag: 'Administracao',
+  tag: 'Alimentação',
   exchangeRates: {},
+  selectedRates: {},
   convertedValue: 0.0,
 };
-
 const initialState = {
   currency: 'BRL',
   currencies: [],
@@ -52,6 +52,7 @@ function getTotalExpenses(newExpenses) {
   newExpenses.forEach((expense) => {
     aggr += parseFloat(expense.convertedValue);
   });
+
   return parseFloat(aggr).toFixed(2);
 }
 
@@ -62,7 +63,6 @@ function saveExpense(state, action) {
 
   if (!('id' in action.payload) || !expense.id) {
     expense.id = state.expenses.length + 1;
-    newExpenses = [...state.expenses];
     newExpenses.push(expense);
     totalExpenses = getTotalExpenses(newExpenses);
     return {
@@ -72,11 +72,11 @@ function saveExpense(state, action) {
       totalExpenses,
     };
   }
-  totalExpenses = getTotalExpenses(newExpenses);
   newExpenses = state.expenses.map((item) => {
     if (item.id !== expense.id) return item;
     return expense;
   });
+  totalExpenses = getTotalExpenses(newExpenses);
   return {
     ...state,
     expenses: newExpenses,
