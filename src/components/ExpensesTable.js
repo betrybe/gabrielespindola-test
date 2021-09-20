@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react/cjs/react.development';
 import Actions from '../actions';
 import ExpenseForm from './ExpenseForm';
 
+import styles from './ExpensesTable.module.css';
+
 const defaultProps = {
   id: null,
   value: 0.0,
@@ -16,7 +18,6 @@ const defaultProps = {
 function ExpensesTable() {
   const dispatch = useDispatch();
   const expenses = useSelector((state) => state.wallet.expenses);
-  const currencyToExchange = useSelector((state) => state.wallet.currencyToExchange);
   const [expense, setExpense] = useState(null);
   const [localExpanses, setLocalExpanses] = useState([]);
 
@@ -71,15 +72,15 @@ function ExpensesTable() {
       <table className="table table-striped py-3 w-100">
         <thead>
           <tr>
-            <th scope="col">Descrição</th>
+            <th scope="col" className={ styles.description }>Descrição</th>
             <th scope="col">Tag</th>
             <th scope="col">Método de pagamento</th>
             <th scope="col">Valor</th>
-            <th scope="col">Moeda</th>
+            <th scope="col" className={ styles.currency }>Moeda</th>
             <th scope="col">Câmbio utilizado</th>
             <th scope="col">Valor convertido</th>
             <th scope="col">Moeda de conversão</th>
-            <th scope="col">Editar/Excluir</th>
+            <th scope="col" className={ styles.actions }>Editar/Excluir</th>
           </tr>
         </thead>
         <tbody>
@@ -97,7 +98,7 @@ function ExpensesTable() {
                 <button
                   data-testid="edit-btn"
                   type="button"
-                  className="me-1 btn btn-warning text-secondary"
+                  className="me-1 btn btn-warning text-secondary btn-sm"
                   onClick={ () => editElementHandler(expenseItem) }
                 >
                   Editar
@@ -105,7 +106,7 @@ function ExpensesTable() {
                 <button
                   data-testid="delete-btn"
                   type="button"
-                  className="btn btn-danger text-white"
+                  className="btn btn-danger text-white btn-sm"
                   onClick={ () => removeElementHandler(expenseItem.id) }
                 >
                   Excluir

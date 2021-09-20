@@ -28,26 +28,6 @@ const defaultProps = {
   tag: 'Alimentação',
 };
 
-function getRatesAndConvertedValue(
-  expenseSelected, elementValue, elementCurrency, currencies,
-) {
-  const expanseValue = elementValue.value || 0;
-  const currencyValue = elementCurrency.value || 'USD';
-
-  let exchangeRates = null;
-  if (expenseSelected && 'exchangeRates' in expenseSelected) {
-    exchangeRates = expenseSelected.exchangeRates[currencyValue];
-  }
-
-  if (!exchangeRates) {
-    exchangeRates = currencyValue
-      ? currencies[currencyValue] : { ask: 0.0 };
-  }
-
-  const convertedValue = (expanseValue * exchangeRates.ask).toFixed(2);
-  return { selectedRates: exchangeRates, convertedValue };
-}
-
 function ExpenseForm({ id, value, currency, description, tag, method, isSavedHandler }) {
   const dispatch = useDispatch();
   const [firstTime, isFirstTime] = useState(true);

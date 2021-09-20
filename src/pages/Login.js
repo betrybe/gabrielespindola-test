@@ -18,8 +18,21 @@ import { Redirect } from 'react-router';
 import styles from './Login.module.css';
 import Actions from '../actions';
 
-function Login() {
+function validateEmailFormat(aux) {
+  const regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+  return regex.test(aux);
+}
+
+function hasEmailError(emailString) {
+  return !emailString || !validateEmailFormat(emailString);
+}
+
+function hasPasswordError(passwordString) {
   const MIN_PASSWORD = 6;
+  return !passwordString || passwordString.length < MIN_PASSWORD;
+}
+
+function Login() {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => (state.user.isAuthenticated));
 
@@ -39,19 +52,6 @@ function Login() {
 
   if (emailValidationError) emailClassNames.push(styles.validationError);
   if (passwordValidationError) passwordClassNames.push(styles.validationError);
-
-  function validateEmailFormat(aux) {
-    const regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-    return regex.test(aux);
-  }
-
-  function hasEmailError(emailString) {
-    return !emailString || !validateEmailFormat(emailString);
-  }
-
-  function hasPasswordError(passwordString) {
-    return !passwordString || passwordString.length < MIN_PASSWORD;
-  }
 
   function validateEmailHandler() {
     const emailError = hasEmailError(email.current.value);
