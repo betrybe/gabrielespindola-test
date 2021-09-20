@@ -1,73 +1,100 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react/cjs/react.development';
 import Actions from '../actions';
+import ExpenseForm from './ExpenseForm';
+
+const defaultProps = {
+  id: null,
+  value: 0.0,
+  currency: 'USD',
+  description: '',
+  method: 'Dinheiro',
+  tag: 'Alimentação',
+};
 
 function ExpensesTable() {
   const dispatch = useDispatch();
   const expenses = useSelector((state) => state.wallet.expenses);
+  // const expenseFromState = useSelector((state) => state.wallet.expense);
 
-  function editElementHandler(id) {
-    dispatch(Actions.wallet.selectCurrentExpense(id));
+  const [expense, setExpense] = useState(null);
+
+  useEffect(() => {
+    setExpense(defaultProps);
+  }, [setExpense]);
+
+  function editElementHandler(expenseSelected) {
+    setExpense({ ...expenseSelected });
   }
 
   function removeElementHandler(id) {
     dispatch(Actions.wallet.removeExpense(id));
   }
 
-  function getCurrencyName(name) {
-    const aux = name.split('/');
-    return aux[0];
-  }
-
-  function getCurrencyToName(name) {
-    const aux = name.split('/');
-    return aux[1];
+  function isSavedHandler(isSaved = true) {
+    if (!isSaved) return;
+    setExpense(defaultProps);
   }
 
   return (
-    <table border="1">
-      <thead>
-        <tr>
-          <th>Descrição</th>
-          <th>Tag</th>
-          <th>Método de pagamento</th>
-          <th>Valor</th>
-          <th>Moeda</th>
-          <th>Câmbio utilizado</th>
-          <th>Moeda de conversãor</th>
-          <th>Editar/excluir</th>
-        </tr>
-      </thead>
-      <tbody>
-        {expenses.map((expense) => (
-          <tr key={ expense.id }>
-            <td>{expense.description}</td>
-            <td>{expense.tag}</td>
-            <td>{expense.method}</td>
-            <td>{expense.value}</td>
-            <td>{getCurrencyName(expense.exchangeRates.name)}</td>
-            <td>{expense.convertedValue}</td>
-            <td>{getCurrencyToName(expense.exchangeRates.name)}</td>
-            <td>
-              <button
-                data-testid="edit-btn"
-                type="button"
-                onClick={ () => editElementHandler(expense.id) }
-              >
-                edit
-              </button>
-              <button
-                data-testid="delete-btn"
-                type="button"
-                onClick={ () => removeElementHandler(expense.id) }
-              >
-                remove
-              </button>
-            </td>
+    <section>
+      {expense && <ExpenseForm
+        id={ expense.id }
+        value={ parseFloat(expense.value) }
+        currency={ expense.currency }
+        description={ expense.description }
+        tag={ expense.tag }
+        method={ expense.method }
+        isSavedHandler={ isSavedHandler }
+      />}
+
+      <table className="table table-striped py-3 w-100">
+        <thead>
+          <tr>
+            <th scope="col">Descrição</th>
+            <th scope="col">Tag</th>
+            <th scope="col">Método de pagamento</th>
+            <th scope="col">Valor</th>
+            <th scope="col">Moeda</th>
+            <th scope="col">Câmbio utilizado</th>
+            <th scope="col">Moeda de conversão</th>
+            <th scope="col">Editar/Excluir</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {expenses.map((expenseItem) => (
+            <tr key={ expenseItem.id }>
+              <td>{expenseItem.description}</td>
+              <td>{expenseItem.tag}</td>
+              <td>{expenseItem.method}</td>
+              <td>{`${expenseItem.selectedRates.code} ${expenseItem.value}`}</td>
+              <td>{expenseItem.selectedRates.name}</td>
+              <td>{`BRT ${expenseItem.convertedValue}`}</td>
+              <td>{expenseItem.selectedRates.moedaTo}</td>
+              <td className="d-flex">
+                <button
+                  data-testid="edit-btn"
+                  type="button"
+                  className="me-1 btn btn-warning text-secondary"
+                  onClick={ () => editElementHandler(expenseItem) }
+                >
+                  Editar
+                </button>
+                <button
+                  data-testid="delete-btn"
+                  type="button"
+                  className="btn btn-danger text-white"
+                  onClick={ () => removeElementHandler(expenseItem.id) }
+                >
+                  Excluir
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
   );
 }
 
