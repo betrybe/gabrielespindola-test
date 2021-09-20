@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import ExpenseForm from '../components/ExpenseForm';
 import ExpensesTable from '../components/ExpensesTable';
 import Header from '../components/Header';
 
@@ -9,9 +8,8 @@ function Wallet() {
   if (errorMessage) return (<div>{errorMessage}</div>);
 
   return (
-    <div className="w-100">
+    <div className="container">
       <Header />
-      <ExpenseForm />
       <ExpensesTable />
     </div>
   );
