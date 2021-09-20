@@ -1,7 +1,5 @@
 // [instrução do teste] Esse reducer será responsável por tratar as informações da pessoa usuária
 
-import actions from '../actions';
-
 // criando tipos de actions para o reducer
 export const USER_LOGIN = 'USER_LOGIN';
 export const USER_LOGOUT = 'USER_LOGOUT';
