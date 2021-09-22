@@ -1,0 +1,9 @@
+.formLayout {
+  background-color: darkslategray;
+  color: white;
+}
+
+.formLayout > label {
+  font-size: 0.9rem;
+  padding-right: 1rem;
+}

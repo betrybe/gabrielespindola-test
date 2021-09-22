@@ -1,0 +1,40 @@
+.loginContainer {
+  border: 1px solid #ccc;
+  border-radius: 5%;
+  margin-top: 20vh;
+  max-height: 100vw;
+  max-width: 25rem;
+  padding: 3rem;
+}
+
+.title {
+  color: darkolivegreen;
+  padding: 0 0 1rem;
+}
+
+.regularField {
+  border: 1px solid #666;
+}
+
+.validationError {
+  border: 1px dashed red;
+}
+
+.validationError:focus {
+  box-shadow: 0 0 0 0.25rem rgb(253 13 13 / 25%);
+}
+
+.mainBtnColor {
+  background-color: darkolivegreen;
+  border-color: rgb(63, 78, 36);
+}
+
+.mainBtnColor:hover, .mainBtnColor:visited, .mainBtnColor:active, .mainBtnColor:focus {
+  background-color: rgb(63, 78, 36);
+  border-color: rgb(63, 78, 36);
+}
+
+.mainBtnColor:disabled {
+  background-color: #92a276;
+  border-color: rgb(63, 78, 36);
+}
